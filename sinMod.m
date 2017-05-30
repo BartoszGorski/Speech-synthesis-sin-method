@@ -1,78 +1,77 @@
 clear all; close all; clc
 
-[y,fs]=audioread('mw1.wav');
+[y,fs]=audioread('Mal.wav');
 
-y=y(34807:35181);       % wycięta litera 'a'
+y=y(12302:13307);       % wycięta litera 'a'
 dl=length(y);
 
 figure(1);
 plot(y);
 
-% figure(2);
-% x=[1:1:dl]/fs;
-% plot(x,y);
-% xlabel('Czas');
+figure(2);
+x=[1:1:dl]/fs;
+plot(x,y);
+xlabel('Czas');
 
 %% fft
-Y=fft(y);               % transformata Fouriera
-P2=abs(Y);              % dwustronne spektrum
-P1=P2(1:dl/2+1);        % wyznaczenie połowy spektrum
-f = fs*(0:(dl/2))/dl;   % liczenie czestotliwości dla każdej próbki
+Y=fft(y);              % transformata Fouriera
+Yabs= abs(Y);
+f = fs*(1:(dl/2))/dl;       % liczenie czestotliwości dla każdej próbki
 
 figure(3);
-plot(f,P1)
+plot(f,Yabs(1:dl/2));
 grid on;
 xlabel('f (Hz)');
 
 figure(4)
-phs2 = unwrap(angle(Y));    % wyliczenie fazy dwustronne spektrum
-phs1 = phs2(1:dl/2+1);      % polowa spektrum
-plot(f,phs1);
-% plot(f,phs1*180/pi);
+% phs = unwrap(angle(Y));    
+phs = angle(Y);             % wyliczenie fazy 
+plot(f,phs(1:dl/2));
+% plot(f,(phs(1:dl/2)*180/pi));
 grid on;
 
 %%
     
-fo=100;                     % pierwszy peak period
-multipleFo=(0:fo:(fs/2));   % odczytanie wielokrotnosci fo
-FoHop=floor(length(P1)/length(multipleFo)); % wyliczenie co ile probek bedziemy odczytywac amplitude i faze
+fo=115.5;                     % ton krtaniowy
+multipleFo=(1:fo:fs);       % odczytanie wielokrotnosci fo
+FoHop=round(length(Yabs)/length(multipleFo)); % wyliczenie co ile probek bedziemy odczytywac amplitude i faze
 
 A=zeros(1,length(multipleFo));  %uwtorzenie zerowego wektora amplitud
 j=0;
-for i=2:FoHop:length(P1)
+for i=1:FoHop:length(Yabs)
     j=j+1;
-    A(j)=P1(i); %przypisanie wartosci amplitud
+    A(j)=Yabs(i);                 %przypisanie wartosci amplitud
 end
 
 fi=zeros(1,length(multipleFo));  %uwtorzenie zerowego wektora amplitud
 j=0;
-for i=2:FoHop:length(phs1)
+for i=1:FoHop:length(phs)
     j=j+1;
-    fi(j)=phs1(i); %przypisanie wartosci fazy
+    fi(j)=phs(i); %przypisanie wartosci fazy
 end
+
 
 n=(1:fo)/fs;
-x=zeros(1,length(A));   %wektor wartosci nowego sygnalu
 
-for k=1:length(A)
-    
-  x(k)=A(k)*sin(2*pi*fo*n(k)+fi(k));
-    
-end
-
-xx=zeros(1,length(f));  % wektor dlugosci naszego sygnalu
+x=zeros(1,dl);   %wektor wartosci nowego sygnalu
 j=1;
-for i=1:ceil(length(f)/length(A)):length(f) 
-    xx(i)=A(j);     % poszerzenie sygnalu aby mial dlugosc oryginalnego sygnalu
-    j=j+1;
+for k=1:FoHop:dl
+  x(k)=A(j)*sin(2*pi*fo*n(j)+fi(j));
+  j=j+1; 
 end
 
+Xabs= abs(x);
 figure(5)
-plot(f,xx);
+plot(f,Xabs(1:dl/2));
+xlabel('f (Hz)');
 grid on;
 
 
-z=ifft(xx);
+z=ifft(x);
 figure(6);
-t=[1:1:(dl/2)+1]/fs;
+t=[1:1:dl]/fs;
 plot(t,z);
+
+%%
+
+% Yslice = splice(Yabs);
