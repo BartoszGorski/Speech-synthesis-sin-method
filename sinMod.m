@@ -53,9 +53,10 @@ title('FFT angle(Y)');
 
 
 %%
-    
-x = recreateSignal(Y, fs, 2);
-xa = recreateSignal(YA, fs, 2);
+
+x = recreateSignal2(Y, 115, fs, 1);
+% x = recreateSignal(Y, fs, 2);
+% xa = recreateSignal(YA, fs, 2);
 
 %%
 

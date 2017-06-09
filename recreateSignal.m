@@ -37,3 +37,5 @@ title('Odtworzony sygnal');
 
 end
 
+
+
