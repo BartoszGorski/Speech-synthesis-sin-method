@@ -3,75 +3,61 @@ clear all; close all; clc
 [y,fs]=audioread('Mal.wav');
 
 y=y(12302:13307);       % wycięta litera 'a'
-dl=length(y);
+% y=y(4000:5500);
+N=length(y);
 
-figure(1);
+figure;
 plot(y);
+xlabel('probki');
+title('wyciety sygnal');
 
-figure(2);
-x=[1:1:dl]/fs;
+figure;
+x=[1:1:N]/fs;
 plot(x,y);
 xlabel('Czas');
+title('wyciety sygnal');
 
 %% fft
 Y=fft(y);              % transformata Fouriera
+Y=Y(1:N/2);
 Yabs= abs(Y);
-f = fs*(1:(dl/2))/dl;       % liczenie czestotliwości dla każdej próbki
+f = fs*(1:(N/2))/N;    % liczenie czestotliwości dla każdej próbki
 
-figure(3);
-plot(f,Yabs(1:dl/2));
+figure;
+plot(f,Yabs);
 grid on;
 xlabel('f (Hz)');
-
-figure(4)
-% phs = unwrap(angle(Y));    
-phs = angle(Y);             % wyliczenie fazy 
-plot(f,phs(1:dl/2));
-% plot(f,(phs(1:dl/2)*180/pi));
+title('FFT abs(Y)');
+   
+figure;
+plot(f,angle(Y));
 grid on;
+xlabel('f (Hz)');
+title('FFT angle(Y)');
+
+
+%% zaokraglenie fft
+
+YA=1./fft(lpc(y,60),N);
+YA=YA(1:(N/2));
+figure;
+plot(f,abs(Y),f,abs(YA));
+grid on;
+xlabel('f (Hz)');
+title('FFT abs(Y)');
+figure;
+plot(f,angle(Y),f,angle(YA));
+grid on;
+xlabel('f (Hz)');
+title('FFT angle(Y)');
+
 
 %%
     
-fo=115.5;                     % ton krtaniowy
-multipleFo=(1:fo:fs);       % odczytanie wielokrotnosci fo
-FoHop=round(length(Yabs)/length(multipleFo)); % wyliczenie co ile probek bedziemy odczytywac amplitude i faze
-
-A=zeros(1,length(multipleFo));  %uwtorzenie zerowego wektora amplitud
-j=0;
-for i=1:FoHop:length(Yabs)
-    j=j+1;
-    A(j)=Yabs(i);                 %przypisanie wartosci amplitud
-end
-
-fi=zeros(1,length(multipleFo));  %uwtorzenie zerowego wektora amplitud
-j=0;
-for i=1:FoHop:length(phs)
-    j=j+1;
-    fi(j)=phs(i); %przypisanie wartosci fazy
-end
-
-
-n=(1:fo)/fs;
-
-x=zeros(1,dl);   %wektor wartosci nowego sygnalu
-j=1;
-for k=1:FoHop:dl
-  x(k)=A(j)*sin(2*pi*fo*n(j)+fi(j));
-  j=j+1; 
-end
-
-Xabs= abs(x);
-figure(5)
-plot(f,Xabs(1:dl/2));
-xlabel('f (Hz)');
-grid on;
-
-
-z=ifft(x);
-figure(6);
-t=[1:1:dl]/fs;
-plot(t,z);
+x = recreateSignal(Y, fs, 2);
+xa = recreateSignal(YA, fs, 2);
 
 %%
 
-% Yslice = splice(Yabs);
+
+
