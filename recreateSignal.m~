@@ -1,5 +1,8 @@
-function x = recreateSignal( amplitude, phase, fo, n, N)
+function x = recreateSignal2( amplitude, phase, fo, fs, t )
 
+t = t*fs;
+n=(1:t)/fs;
+% n=(1:length(Y)*2)/fs;   %sygnal dlugosci wycietego
 x=zeros(size(n));   %wektor wartosci nowego sygnalu
 for k=1:length(amplitude)
   x=x+amplitude(k)*sin(2*pi*k*fo*n+phase(k))/N;

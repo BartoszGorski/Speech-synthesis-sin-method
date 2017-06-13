@@ -69,5 +69,5 @@ o = sinModulation( o, fs, fo, time );
 %%
 mama = [m,a,m,a];
 ala = [a,l,a];
-% amator = [a,m,a,t,o,r];
+amator = [a,m,a,t,o,r];
 
